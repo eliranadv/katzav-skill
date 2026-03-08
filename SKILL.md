@@ -244,9 +244,11 @@ new Table({
 
 ## תבנית 1: כתב בי דין (תביעה / הגנה / בקשה)
 
-זו התבנית העיקרית. כל ה-Header בנוי כ**טבלה אחת עם גבולות נסתרים (noBorders)** — כמקובל במסמכים משפטיים ישראליים.
+זו התבנית העיקרית. כל ה-Header בנוי כ**טבלה אחת עם 3 עמודות וגבולות נסתרים (noBorders)** — כמקובל במסמכים משפטיים ישראליים.
 
-**שים לב:** פרטי המשרד מוצמדים לצד שאנחנו מייצגים.
+**מבנה:** עמודה ימנית (תוויות 2800), עמודה אמצעית (תוכן 5000), עמודה שמאלית (מספר תיק 1838).
+
+**שים לב:** פרטי המשרד מוצמדים לצד שאנחנו מייצגים. עיר בית המשפט (`courtCity`) תמיד בשורה נפרדת.
 
 ```javascript
 const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
@@ -255,8 +257,15 @@ const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
 const PAGE_WIDTH = 11906;
 const MARGINS = { top: 1134, right: 1134, bottom: 1134, left: 1134 };
 const CONTENT_WIDTH = PAGE_WIDTH - MARGINS.left - MARGINS.right; // 9638
-const COL_RIGHT = 7700;  // עמודה ימנית — תוכן הצדדים
-const COL_LEFT = CONTENT_WIDTH - COL_RIGHT;  // 1938 — תוויות (התובע:/הנתבע:)
+
+// === 3 עמודות עם visuallyRightToLeft: true ===
+// columnWidths[0] = עמודה ימנית ויזואלית = תוויות (בית משפט, התובע:, הנתבע:)
+// columnWidths[1] = עמודה אמצעית ויזואלית = תוכן (שמות, פרטים, ייצוג)
+// columnWidths[2] = עמודה שמאלית ויזואלית = מספר תיק (ריקה ברוב השורות)
+const COL_LABELS = 2800;   // ימין — תוויות
+const COL_CONTENT = 5000;  // אמצע — תוכן
+const COL_CASE = 1838;     // שמאל — מספר תיק
+// Total: 2800 + 5000 + 1838 = 9638 ✓
 
 const noBorder = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
 const noBorders = { top: noBorder, bottom: noBorder, left: noBorder, right: noBorder };
@@ -268,7 +277,7 @@ function partyContentWithRepresentation(clientName, clientId, clientAddress) {
       bidirectional: true, alignment: AlignmentType.START,
       spacing: { after: 40 },
       children: [
-        new TextRun({ text: `${clientName}, ת.ז. ${clientId}`, font: "David", size: 24, rightToLeft: true }),
+        new TextRun({ text: `${clientName}, ת.ז. ${clientId}`, font: "David", size: 24, rightToLeft: true, bold: true }),
       ]
     }),
     ...(clientAddress ? [new Paragraph({
@@ -302,39 +311,66 @@ function partyContentWithRepresentation(clientName, clientId, clientAddress) {
     }),
     new Paragraph({
       bidirectional: true, alignment: AlignmentType.START,
+      spacing: { after: 40 },
       children: [new TextRun({
-        text: 'טל\': 077-2088182 | פקס: 077-555-88-97 | office@ak-law.co.il',
+        text: "טל': 077-2088182 | פקס: 077-555-88-97",
+        font: "David", size: 24, rightToLeft: true
+      })]
+    }),
+    new Paragraph({
+      bidirectional: true, alignment: AlignmentType.START,
+      children: [new TextRun({
+        text: 'דוא"ל: office@ak-law.co.il',
         font: "David", size: 24, rightToLeft: true
       })]
     }),
   ];
 }
 
-// === תוכן תא — צד שכנגד (ללא ייצוג) ===
-function partyContentOpposing(name, id, address) {
+// === תוכן תא — צד שכנגד (עם/בלי ייצוג) ===
+function partyContentOpposing(name, id, address, opposingRepresentation) {
   const paragraphs = [
     new Paragraph({
       bidirectional: true, alignment: AlignmentType.START,
       spacing: { after: 40 },
       children: [
-        new TextRun({ text: `${name}, ת.ז./ח.פ. ${id}`, font: "David", size: 24, rightToLeft: true }),
+        new TextRun({ text: `${name}, ת.ז./ח.פ. ${id}`, font: "David", size: 24, rightToLeft: true, bold: true }),
       ]
     }),
   ];
   if (address) {
     paragraphs.push(new Paragraph({
       bidirectional: true, alignment: AlignmentType.START,
+      spacing: { after: 40 },
       children: [new TextRun({ text: address, font: "David", size: 24, rightToLeft: true })]
     }));
+  }
+  if (opposingRepresentation) {
+    if (Array.isArray(opposingRepresentation)) {
+      opposingRepresentation.forEach(line => {
+        paragraphs.push(new Paragraph({
+          bidirectional: true, alignment: AlignmentType.START,
+          spacing: { after: 40 },
+          children: [new TextRun({ text: line, font: "David", size: 24, rightToLeft: true })]
+        }));
+      });
+    } else {
+      paragraphs.push(new Paragraph({
+        bidirectional: true, alignment: AlignmentType.START,
+        spacing: { after: 40 },
+        children: [new TextRun({ text: opposingRepresentation, font: "David", size: 24, rightToLeft: true })]
+      }));
+    }
   }
   return paragraphs;
 }
 
 // === טבלת Header כתב בי דין — טבלה אחת עם גבולות נסתרים ===
-// מבנה: 6 שורות × 2 עמודות (ימנית=תוכן, שמאלית=תוויות)
-// שורות 4 ו-6 משתרעות על 2 עמודות (columnSpan: 2)
+// מבנה: 7 שורות × 3 עמודות (ימנית=תוויות, אמצעית=תוכן, שמאלית=מספר תיק)
+// שורות 3, 5 ו-7 משתרעות על 3 עמודות (columnSpan: 3)
 function courtDocumentHeader({
-  courtName,         // "בבית משפט השלום בהרצליה"
+  courtName,         // "בבית המשפט השלום"
+  courtCity,         // "בחיפה" — תמיד בשורה נפרדת מתחת לשם בית המשפט
   caseNumber,        // 'ת.א. ________/__/__'
   plaintiffContent,  // Paragraph[] מ-partyContentWithRepresentation או partyContentOpposing
   plaintiffLabel,    // "התובע" / "התובעים" / "המבקש"
@@ -344,92 +380,125 @@ function courtDocumentHeader({
 }) {
   return new Table({
     width: { size: CONTENT_WIDTH, type: WidthType.DXA },
-    columnWidths: [COL_RIGHT, COL_LEFT],
+    columnWidths: [COL_LABELS, COL_CONTENT, COL_CASE],
     visuallyRightToLeft: true,
     rows: [
-      // === שורה 1: ת.חתימה ===
+      // === שורה 1: ת.חתימה (ימין) | ריק (אמצע) | ריק (שמאל) — רווח 0 ===
       new TableRow({ children: [
         new TableCell({
-          width: { size: COL_RIGHT, type: WidthType.DXA }, borders: noBorders,
-          children: [new Paragraph({ bidirectional: true, children: [] })]
-        }),
-        new TableCell({
-          width: { size: COL_LEFT, type: WidthType.DXA }, borders: noBorders,
+          width: { size: COL_LABELS, type: WidthType.DXA }, borders: noBorders,
           children: [new Paragraph({
-            bidirectional: true, alignment: AlignmentType.END,
+            bidirectional: true, alignment: AlignmentType.START,
+            spacing: { before: 0, after: 0 },
             children: [new TextRun({ text: "ת.חתימה :", font: "David", size: 24, rightToLeft: true })]
           })]
         }),
+        new TableCell({
+          width: { size: COL_CONTENT, type: WidthType.DXA }, borders: noBorders,
+          children: [new Paragraph({ bidirectional: true, spacing: { before: 0, after: 0 }, children: [] })]
+        }),
+        new TableCell({
+          width: { size: COL_CASE, type: WidthType.DXA }, borders: noBorders,
+          children: [new Paragraph({ bidirectional: true, spacing: { before: 0, after: 0 }, children: [] })]
+        }),
       ]}),
-      // === שורה 2: בית משפט + מספר תיק ===
+      // === שורה 2: בית משפט (ימין) | ריק (אמצע) | מספר תיק (שמאל) — רווח 0 ===
       new TableRow({ children: [
         new TableCell({
-          width: { size: COL_RIGHT, type: WidthType.DXA }, borders: noBorders,
+          width: { size: COL_LABELS, type: WidthType.DXA }, borders: noBorders,
+          children: [
+            new Paragraph({
+              bidirectional: true, alignment: AlignmentType.START,
+              spacing: { before: 0, after: 0 },
+              children: [new TextRun({ text: courtName, bold: true, font: "David", size: 24, rightToLeft: true })]
+            }),
+            new Paragraph({
+              bidirectional: true, alignment: AlignmentType.START,
+              spacing: { before: 0, after: 0 },
+              children: [new TextRun({ text: courtCity, bold: true, font: "David", size: 24, rightToLeft: true })]
+            }),
+          ]
+        }),
+        new TableCell({
+          width: { size: COL_CONTENT, type: WidthType.DXA }, borders: noBorders,
+          children: [new Paragraph({ bidirectional: true, spacing: { before: 0, after: 0 }, children: [] })]
+        }),
+        new TableCell({
+          width: { size: COL_CASE, type: WidthType.DXA }, borders: noBorders,
           children: [new Paragraph({
             bidirectional: true, alignment: AlignmentType.START,
-            spacing: { after: 120 },
-            children: [new TextRun({ text: courtName, bold: true, font: "David", size: 26, rightToLeft: true })]
-          })]
-        }),
-        new TableCell({
-          width: { size: COL_LEFT, type: WidthType.DXA }, borders: noBorders,
-          children: [new Paragraph({
-            bidirectional: true, alignment: AlignmentType.END,
-            children: [new TextRun({ text: caseNumber, font: "David", size: 24, rightToLeft: true })]
+            spacing: { before: 0, after: 0 },
+            children: [new TextRun({ text: caseNumber, bold: true, font: "David", size: 24, rightToLeft: true })]
           })]
         }),
       ]}),
-      // === שורה 3: צד ראשון (תובע/מבקש) ===
+      // === שורה מפרידה ריקה (colspan 3) ===
       new TableRow({ children: [
         new TableCell({
-          width: { size: COL_RIGHT, type: WidthType.DXA }, borders: noBorders,
+          width: { size: COL_LABELS, type: WidthType.DXA }, borders: noBorders,
+          columnSpan: 3,
+          children: [new Paragraph({ bidirectional: true, spacing: { before: 0, after: 0 }, children: [] })]
+        }),
+      ]}),
+      // === שורה 4: תווית תובעים (ימין) | פרטי תובעים (אמצע) | ריק (שמאל) ===
+      new TableRow({ children: [
+        new TableCell({
+          width: { size: COL_LABELS, type: WidthType.DXA }, borders: noBorders,
+          verticalAlign: VerticalAlign.TOP,
+          children: [new Paragraph({
+            bidirectional: true, alignment: AlignmentType.START,
+            children: [new TextRun({ text: `${plaintiffLabel}:`, bold: true, font: "David", size: 24, rightToLeft: true, underline: {} })]
+          })]
+        }),
+        new TableCell({
+          width: { size: COL_CONTENT, type: WidthType.DXA }, borders: noBorders,
           children: plaintiffContent
         }),
         new TableCell({
-          width: { size: COL_LEFT, type: WidthType.DXA }, borders: noBorders,
-          verticalAlign: VerticalAlign.CENTER,
-          children: [new Paragraph({
-            bidirectional: true, alignment: AlignmentType.END,
-            children: [new TextRun({ text: `${plaintiffLabel}:`, bold: true, font: "David", size: 24, rightToLeft: true })]
-          })]
+          width: { size: COL_CASE, type: WidthType.DXA }, borders: noBorders,
+          children: [new Paragraph({ bidirectional: true, children: [] })]
         }),
       ]}),
-      // === שורה 4: "- נגד -" (משתרע על 2 עמודות) ===
+      // === שורה 5: "-נגד-" (colspan 3) ===
       new TableRow({ children: [
         new TableCell({
-          width: { size: COL_RIGHT, type: WidthType.DXA }, borders: noBorders,
-          columnSpan: 2,
+          width: { size: COL_LABELS, type: WidthType.DXA }, borders: noBorders,
+          columnSpan: 3,
           children: [new Paragraph({
             bidirectional: true, alignment: AlignmentType.CENTER,
             spacing: { before: 200, after: 200 },
-            children: [new TextRun({ text: "- נגד -", bold: true, font: "David", size: 24, rightToLeft: true })]
+            children: [new TextRun({ text: "-נגד-", bold: true, font: "David", size: 24, rightToLeft: true })]
           })]
         }),
       ]}),
-      // === שורה 5: צד שני (נתבע/משיב) ===
+      // === שורה 6: תווית נתבע (ימין) | פרטי נתבע (אמצע) | ריק (שמאל) ===
       new TableRow({ children: [
         new TableCell({
-          width: { size: COL_RIGHT, type: WidthType.DXA }, borders: noBorders,
+          width: { size: COL_LABELS, type: WidthType.DXA }, borders: noBorders,
+          verticalAlign: VerticalAlign.TOP,
+          children: [new Paragraph({
+            bidirectional: true, alignment: AlignmentType.START,
+            children: [new TextRun({ text: `${defendantLabel}:`, bold: true, font: "David", size: 24, rightToLeft: true, underline: {} })]
+          })]
+        }),
+        new TableCell({
+          width: { size: COL_CONTENT, type: WidthType.DXA }, borders: noBorders,
           children: defendantContent
         }),
         new TableCell({
-          width: { size: COL_LEFT, type: WidthType.DXA }, borders: noBorders,
-          verticalAlign: VerticalAlign.CENTER,
-          children: [new Paragraph({
-            bidirectional: true, alignment: AlignmentType.END,
-            children: [new TextRun({ text: `${defendantLabel}:`, bold: true, font: "David", size: 24, rightToLeft: true })]
-          })]
+          width: { size: COL_CASE, type: WidthType.DXA }, borders: noBorders,
+          children: [new Paragraph({ bidirectional: true, children: [] })]
         }),
       ]}),
-      // === שורה 6: כותרת המסמך (משתרע על 2 עמודות) ===
+      // === שורה 7: כותרת המסמך (colspan 3) ===
       new TableRow({ children: [
         new TableCell({
-          width: { size: COL_RIGHT, type: WidthType.DXA }, borders: noBorders,
-          columnSpan: 2,
+          width: { size: COL_LABELS, type: WidthType.DXA }, borders: noBorders,
+          columnSpan: 3,
           children: [new Paragraph({
             bidirectional: true, alignment: AlignmentType.CENTER,
             spacing: { before: 300, after: 300 },
-            children: [new TextRun({ text: documentTitle, bold: true, font: "David", size: 28, rightToLeft: true, underline: {} })]
+            children: [new TextRun({ text: documentTitle, bold: true, font: "David", size: 24, rightToLeft: true, underline: {} })]
           })]
         }),
       ]}),
@@ -495,7 +564,8 @@ const doc = new Document({
     },
     children: [
       courtDocumentHeader({
-        courtName: "בבית המשפט השלום בפתח תקווה",
+        courtName: "בבית המשפט השלום",
+        courtCity: "בפתח תקווה",
         caseNumber: 'ת"א _____-__-__',
         plaintiffContent: partyContentWithRepresentation("[שם הלקוח]", "[מספר ת.ז.]", "[כתובת]"),
         plaintiffLabel: "התובע",
@@ -512,9 +582,16 @@ const doc = new Document({
 // === דוגמה: כתב הגנה (מייצגים את הנתבע) ===
 // children: [
 //   courtDocumentHeader({
-//     courtName: "בבית המשפט השלום בחיפה",
+//     courtName: "בבית המשפט השלום",
+//     courtCity: "בחיפה",
 //     caseNumber: 'ת"א _____-__-__',
-//     plaintiffContent: partyContentOpposing("[שם התובע]", "[מספר]", "[כתובת]"),
+//     plaintiffContent: partyContentOpposing("[שם התובע]", "[מספר]", "[כתובת]", [
+//       'ע"י ב"כ עו"ד [שם עו"ד] ([מ.ר.])',
+//       'משרד [שם המשרד], עורכי דין',
+//       '[כתובת המשרד]',
+//       'טל: [טלפון] | פקס: [פקס]',
+//       'דוא"ל: [אימייל]',
+//     ]),
 //     plaintiffLabel: "התובע",
 //     defendantContent: partyContentWithRepresentation("[שם הלקוח]", "[מספר ת.ז.]", "[כתובת]"),
 //     defendantLabel: "הנתבע",

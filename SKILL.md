@@ -270,6 +270,12 @@ const COL_CASE = 1838;     // שמאל — מספר תיק
 const visibleBorder = { style: BorderStyle.SINGLE, size: 1, color: "999999" };
 const visibleBorders = { top: visibleBorder, bottom: visibleBorder, left: visibleBorder, right: visibleBorder };
 
+// גבולות נסתרים לכותרת כתב בי דין — נראים כ-gridlines בעורך Word אבל לא מודפסים
+const noBorder = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
+const noBorders = { top: noBorder, bottom: noBorder, left: noBorder, right: noBorder };
+// margins אחידים לתאי הכותרת
+const headerCellMargins = { top: 40, bottom: 40, left: 80, right: 80 };
+
 // === תוכן תא — צד מיוצג (כולל פרטי משרד) ===
 function partyContentWithRepresentation(clientName, clientId, clientAddress) {
   return [
@@ -365,7 +371,8 @@ function partyContentOpposing(name, id, address, opposingRepresentation) {
   return paragraphs;
 }
 
-// === טבלת Header כתב בי דין — טבלה אחת עם גבולות נסתרים ===
+// === טבלת Header כתב בי דין — טבלה אחת עם גבולות נסתרים (noBorders) ===
+// הגבולות נראים כ-gridlines בעורך Word אבל לא מודפסים
 // מבנה: 7 שורות × 3 עמודות (ימנית=תוויות, אמצעית=תוכן, שמאלית=מספר תיק)
 // שורות 3, 5 ו-7 משתרעות על 3 עמודות (columnSpan: 3)
 function courtDocumentHeader({
@@ -383,10 +390,11 @@ function courtDocumentHeader({
     columnWidths: [COL_LABELS, COL_CONTENT, COL_CASE],
     visuallyRightToLeft: true,
     rows: [
-      // === שורה 1: ת.חתימה (ימין) | ריק (אמצע) | ריק (שמאל) — רווח 0 ===
+      // === שורה 1: ת.חתימה (ימין) | ריק (אמצע) | ריק (שמאל) ===
       new TableRow({ children: [
         new TableCell({
-          width: { size: COL_LABELS, type: WidthType.DXA }, borders: visibleBorders,
+          width: { size: COL_LABELS, type: WidthType.DXA }, borders: noBorders,
+          margins: headerCellMargins,
           children: [new Paragraph({
             bidirectional: true, alignment: AlignmentType.START,
             spacing: { before: 0, after: 0 },
@@ -394,18 +402,21 @@ function courtDocumentHeader({
           })]
         }),
         new TableCell({
-          width: { size: COL_CONTENT, type: WidthType.DXA }, borders: visibleBorders,
+          width: { size: COL_CONTENT, type: WidthType.DXA }, borders: noBorders,
+          margins: headerCellMargins,
           children: [new Paragraph({ bidirectional: true, spacing: { before: 0, after: 0 }, children: [] })]
         }),
         new TableCell({
-          width: { size: COL_CASE, type: WidthType.DXA }, borders: visibleBorders,
+          width: { size: COL_CASE, type: WidthType.DXA }, borders: noBorders,
+          margins: headerCellMargins,
           children: [new Paragraph({ bidirectional: true, spacing: { before: 0, after: 0 }, children: [] })]
         }),
       ]}),
-      // === שורה 2: בית משפט (ימין) | ריק (אמצע) | מספר תיק (שמאל) — רווח 0 ===
+      // === שורה 2: בית משפט (ימין) | ריק (אמצע) | מספר תיק (שמאל) ===
       new TableRow({ children: [
         new TableCell({
-          width: { size: COL_LABELS, type: WidthType.DXA }, borders: visibleBorders,
+          width: { size: COL_LABELS, type: WidthType.DXA }, borders: noBorders,
+          margins: headerCellMargins,
           children: [
             new Paragraph({
               bidirectional: true, alignment: AlignmentType.START,
@@ -420,11 +431,13 @@ function courtDocumentHeader({
           ]
         }),
         new TableCell({
-          width: { size: COL_CONTENT, type: WidthType.DXA }, borders: visibleBorders,
+          width: { size: COL_CONTENT, type: WidthType.DXA }, borders: noBorders,
+          margins: headerCellMargins,
           children: [new Paragraph({ bidirectional: true, spacing: { before: 0, after: 0 }, children: [] })]
         }),
         new TableCell({
-          width: { size: COL_CASE, type: WidthType.DXA }, borders: visibleBorders,
+          width: { size: COL_CASE, type: WidthType.DXA }, borders: noBorders,
+          margins: headerCellMargins,
           children: [new Paragraph({
             bidirectional: true, alignment: AlignmentType.START,
             spacing: { before: 0, after: 0 },
@@ -435,7 +448,7 @@ function courtDocumentHeader({
       // === שורה מפרידה ריקה (colspan 3) ===
       new TableRow({ children: [
         new TableCell({
-          width: { size: COL_LABELS, type: WidthType.DXA }, borders: visibleBorders,
+          width: { size: COL_LABELS, type: WidthType.DXA }, borders: noBorders,
           columnSpan: 3,
           children: [new Paragraph({ bidirectional: true, spacing: { before: 0, after: 0 }, children: [] })]
         }),
@@ -443,7 +456,8 @@ function courtDocumentHeader({
       // === שורה 4: תווית תובעים (ימין) | פרטי תובעים (אמצע) | ריק (שמאל) ===
       new TableRow({ children: [
         new TableCell({
-          width: { size: COL_LABELS, type: WidthType.DXA }, borders: visibleBorders,
+          width: { size: COL_LABELS, type: WidthType.DXA }, borders: noBorders,
+          margins: headerCellMargins,
           verticalAlign: VerticalAlign.TOP,
           children: [new Paragraph({
             bidirectional: true, alignment: AlignmentType.START,
@@ -451,18 +465,20 @@ function courtDocumentHeader({
           })]
         }),
         new TableCell({
-          width: { size: COL_CONTENT, type: WidthType.DXA }, borders: visibleBorders,
+          width: { size: COL_CONTENT, type: WidthType.DXA }, borders: noBorders,
+          margins: headerCellMargins,
           children: plaintiffContent
         }),
         new TableCell({
-          width: { size: COL_CASE, type: WidthType.DXA }, borders: visibleBorders,
+          width: { size: COL_CASE, type: WidthType.DXA }, borders: noBorders,
+          margins: headerCellMargins,
           children: [new Paragraph({ bidirectional: true, children: [] })]
         }),
       ]}),
       // === שורה 5: "-נגד-" (colspan 3) ===
       new TableRow({ children: [
         new TableCell({
-          width: { size: COL_LABELS, type: WidthType.DXA }, borders: visibleBorders,
+          width: { size: COL_LABELS, type: WidthType.DXA }, borders: noBorders,
           columnSpan: 3,
           children: [new Paragraph({
             bidirectional: true, alignment: AlignmentType.CENTER,
@@ -474,7 +490,8 @@ function courtDocumentHeader({
       // === שורה 6: תווית נתבע (ימין) | פרטי נתבע (אמצע) | ריק (שמאל) ===
       new TableRow({ children: [
         new TableCell({
-          width: { size: COL_LABELS, type: WidthType.DXA }, borders: visibleBorders,
+          width: { size: COL_LABELS, type: WidthType.DXA }, borders: noBorders,
+          margins: headerCellMargins,
           verticalAlign: VerticalAlign.TOP,
           children: [new Paragraph({
             bidirectional: true, alignment: AlignmentType.START,
@@ -482,19 +499,22 @@ function courtDocumentHeader({
           })]
         }),
         new TableCell({
-          width: { size: COL_CONTENT, type: WidthType.DXA }, borders: visibleBorders,
+          width: { size: COL_CONTENT, type: WidthType.DXA }, borders: noBorders,
+          margins: headerCellMargins,
           children: defendantContent
         }),
         new TableCell({
-          width: { size: COL_CASE, type: WidthType.DXA }, borders: visibleBorders,
+          width: { size: COL_CASE, type: WidthType.DXA }, borders: noBorders,
+          margins: headerCellMargins,
           children: [new Paragraph({ bidirectional: true, children: [] })]
         }),
       ]}),
       // === שורה 7: כותרת המסמך (colspan 3) ===
       new TableRow({ children: [
         new TableCell({
-          width: { size: COL_LABELS, type: WidthType.DXA }, borders: visibleBorders,
+          width: { size: COL_LABELS, type: WidthType.DXA }, borders: noBorders,
           columnSpan: 3,
+          margins: headerCellMargins,
           children: [new Paragraph({
             bidirectional: true, alignment: AlignmentType.CENTER,
             spacing: { before: 300, after: 300 },
@@ -605,135 +625,100 @@ const doc = new Document({
 
 ## תבנית 2: מכתב התראה (עם נייר פירמה)
 
+### שיטה מועדפת: unpack/repack מתבנית נייר מכתבים
+
+**תמיד להשתמש בתבנית `assets/letterhead-template.docx` ליצירת מכתבים!**
+
+התבנית כוללת נייר מכתבים מדויק עם:
+- Header: לוגו המשרד (שמאל) + שמות עו"ד בעברית ואנגלית (ימין), פונט minorBidi 12pt, צבע 1B2A4A
+- קו מפריד כחול כהה (1B2A4A, size 6)
+- Footer: קו עליון כחול, כתובת בעברית ואנגלית, פרטי קשר (Tahoma 9pt, צבע 1F497D)
+- שוליים: top 850, right/bottom/left 1134, header 283, footer 283
+- גוף: פונט David 12pt (size 24), RTL
+
+```bash
+# שלב 1: unpack התבנית
+python /mnt/skills/public/docx/scripts/unpack.py assets/letterhead-template.docx unpacked/
+
+# שלב 2: ערוך word/document.xml — הוסף פסקאות תוכן לפני <w:sectPr>
+# שלב 3: repack
+python /mnt/skills/public/docx/scripts/pack.py unpacked/ output.docx --original assets/letterhead-template.docx
+```
+
+### פסקאות תוכן להכנסה (XML — לפני `<w:sectPr>`)
+
+**חשוב:** החלף את כל הפסקאות הריקות הקיימות (שורות `<w:p>` הריקות שאחרי הטבלה וקו המפריד) בפסקאות התוכן הבאות:
+
+```xml
+<!-- תאריך -->
+<w:p><w:pPr><w:bidi/><w:spacing w:after="0"/><w:jc w:val="right"/></w:pPr>
+<w:r><w:rPr><w:rFonts w:ascii="David" w:hAnsi="David" w:cs="David"/>
+<w:sz w:val="24"/><w:szCs w:val="24"/><w:rtl/></w:rPr>
+<w:t>[תאריך]</w:t></w:r></w:p>
+
+<!-- סימוכין -->
+<w:p><w:pPr><w:bidi/><w:spacing w:after="100"/><w:jc w:val="right"/></w:pPr>
+<w:r><w:rPr><w:rFonts w:ascii="David" w:hAnsi="David" w:cs="David"/>
+<w:sz w:val="24"/><w:szCs w:val="24"/><w:rtl/></w:rPr>
+<w:t>סימוכין: [מספר תיק]</w:t></w:r></w:p>
+
+<!-- נמען -->
+<w:p><w:pPr><w:bidi/><w:spacing w:before="200" w:after="40"/><w:jc w:val="right"/></w:pPr>
+<w:r><w:rPr><w:rFonts w:ascii="David" w:hAnsi="David" w:cs="David"/>
+<w:sz w:val="24"/><w:szCs w:val="24"/><w:rtl/></w:rPr>
+<w:t>לכבוד</w:t></w:r></w:p>
+
+<w:p><w:pPr><w:bidi/><w:jc w:val="right"/></w:pPr>
+<w:r><w:rPr><w:rFonts w:ascii="David" w:hAnsi="David" w:cs="David"/>
+<w:b/><w:bCs/><w:sz w:val="24"/><w:szCs w:val="24"/><w:rtl/></w:rPr>
+<w:t>[שם הנמען]</w:t></w:r></w:p>
+
+<!-- סיווג -->
+<w:p><w:pPr><w:bidi/><w:spacing w:before="200"/><w:jc w:val="right"/></w:pPr>
+<w:r><w:rPr><w:rFonts w:ascii="David" w:hAnsi="David" w:cs="David"/>
+<w:b/><w:bCs/><w:sz w:val="24"/><w:szCs w:val="24"/><w:rtl/></w:rPr>
+<w:t>מכתב זה נשלח מבלי לפגוע בזכויות מרשי/תי</w:t></w:r></w:p>
+
+<!-- הנדון -->
+<w:p><w:pPr><w:bidi/><w:spacing w:before="200" w:after="200"/><w:jc w:val="center"/></w:pPr>
+<w:r><w:rPr><w:rFonts w:ascii="David" w:hAnsi="David" w:cs="David"/>
+<w:b/><w:bCs/><w:sz w:val="24"/><w:szCs w:val="24"/><w:rtl/></w:rPr>
+<w:t xml:space="preserve">הנדון: </w:t></w:r>
+<w:r><w:rPr><w:rFonts w:ascii="David" w:hAnsi="David" w:cs="David"/>
+<w:b/><w:bCs/><w:u w:val="single"/><w:sz w:val="24"/><w:szCs w:val="24"/><w:rtl/></w:rPr>
+<w:t>[נושא המכתב]</w:t></w:r></w:p>
+
+<!-- גוף המכתב — סעיפים ממוספרים או פסקאות -->
+<!-- ... הוסף פסקאות תוכן כאן ... -->
+
+<!-- חתימה -->
+<w:p><w:pPr><w:bidi/><w:spacing w:before="400"/><w:jc w:val="right"/></w:pPr>
+<w:r><w:rPr><w:rFonts w:ascii="David" w:hAnsi="David" w:cs="David"/>
+<w:sz w:val="24"/><w:szCs w:val="24"/><w:rtl/></w:rPr>
+<w:t>בכבוד רב,</w:t></w:r></w:p>
+
+<w:p><w:pPr><w:bidi/><w:spacing w:before="200"/></w:pPr></w:p>
+
+<w:p><w:pPr><w:bidi/><w:jc w:val="right"/></w:pPr>
+<w:r><w:rPr><w:rFonts w:ascii="David" w:hAnsi="David" w:cs="David"/>
+<w:sz w:val="24"/><w:szCs w:val="24"/><w:rtl/></w:rPr>
+<w:t>________________</w:t></w:r></w:p>
+
+<w:p><w:pPr><w:bidi/><w:jc w:val="right"/></w:pPr>
+<w:r><w:rPr><w:rFonts w:ascii="David" w:hAnsi="David" w:cs="David"/>
+<w:b/><w:bCs/><w:sz w:val="24"/><w:szCs w:val="24"/><w:rtl/></w:rPr>
+<w:t>לירן אקוקא, עו"ד / אלירן קצב, עו"ד</w:t></w:r></w:p>
+
+<w:p><w:pPr><w:bidi/><w:jc w:val="right"/></w:pPr>
+<w:r><w:rPr><w:rFonts w:ascii="David" w:hAnsi="David" w:cs="David"/>
+<w:sz w:val="24"/><w:szCs w:val="24"/><w:rtl/></w:rPr>
+<w:t>אקוקא-קצב, משרד עו"ד</w:t></w:r></w:p>
+```
+
+### שיטה חלופית: docx-js מאפס (אם אין גישה ל-unpack/pack)
+
 ```javascript
-const fs = require('fs');
-
-// === Header נייר פירמה — לוגו + שמות עו"ד ===
-function firmLetterhead(logoPath) {
-  const children = [];
-
-  // טבלה: לוגו (שמאל) | שמות עו"ד (ימין)
-  const headerTable = new Table({
-    width: { size: CONTENT_WIDTH, type: WidthType.DXA },
-    columnWidths: [5600, CONTENT_WIDTH - 5600],
-    visuallyRightToLeft: false, // הלוגו בשמאל
-    rows: [new TableRow({ children: [
-      // תא שמאלי — לוגו
-      new TableCell({
-        width: { size: 5600, type: WidthType.DXA }, borders: visibleBorders,
-        verticalAlign: "top",
-        children: [new Paragraph({
-          alignment: AlignmentType.START,
-          children: logoPath ? [new ImageRun({
-            data: fs.readFileSync(logoPath),
-            transformation: { width: 142, height: 83 }, // ~1800000 EMU
-            type: "png",
-          })] : []
-        })]
-      }),
-      // תא ימני — שמות עו"ד (RTL nested table)
-      new TableCell({
-        width: { size: CONTENT_WIDTH - 5600, type: WidthType.DXA }, borders: visibleBorders,
-        verticalAlign: "top",
-        children: [
-          new Paragraph({
-            bidirectional: true, alignment: AlignmentType.START,
-            spacing: { after: 20 },
-            children: [
-              new TextRun({ text: 'לירן אקוקא, עו"ד', font: "Tahoma", size: 20, color: "1B2A4A", rightToLeft: true }),
-              new TextRun({ text: "  ", font: "Tahoma", size: 17 }),
-              new TextRun({ text: "LIRAN AKOKA, Adv.", font: "Tahoma", size: 17, color: "555555" }),
-            ]
-          }),
-          new Paragraph({
-            bidirectional: true, alignment: AlignmentType.START,
-            spacing: { after: 20 },
-            children: [
-              new TextRun({ text: 'אלירן קצב, עו"ד', font: "Tahoma", size: 20, color: "1B2A4A", rightToLeft: true }),
-              new TextRun({ text: "  ", font: "Tahoma", size: 17 }),
-              new TextRun({ text: "ELIRAN KATZAV, Adv.", font: "Tahoma", size: 17, color: "555555" }),
-            ]
-          }),
-        ]
-      }),
-    ]})]
-  });
-
-  children.push(headerTable);
-
-  // קו מפריד
-  children.push(new Paragraph({
-    spacing: { before: 40, after: 120 },
-    border: { bottom: { style: BorderStyle.SINGLE, size: 6, space: 1, color: "1B2A4A" } },
-    children: []
-  }));
-
-  return children;
-}
-
-// === Footer נייר פירמה ===
-function firmFooter() {
-  return new Footer({
-    children: [
-      new Paragraph({ children: [] }), // ריק לפני
-      new Table({
-        width: { size: CONTENT_WIDTH, type: WidthType.DXA },
-        rows: [new TableRow({ children: [
-          new TableCell({
-            width: { size: CONTENT_WIDTH, type: WidthType.DXA }, borders: visibleBorders,
-            shading: { fill: "F2F2F2", type: ShadingType.CLEAR },
-            margins: { top: 100, bottom: 80, left: 200, right: 200 },
-            children: [
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                spacing: { after: 20 },
-                children: [new TextRun({
-                  text: "רח' סוקולוב 40, (בית הפירמידה), רמת השרון",
-                  font: "Tahoma", size: 15, color: "555555", rightToLeft: true
-                })]
-              }),
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                spacing: { after: 20 },
-                children: [new TextRun({
-                  text: "Sokolov 40, (Pyramid House), Ramat HaSharon",
-                  font: "Tahoma", size: 14, color: "777777"
-                })]
-              }),
-              new Paragraph({
-                alignment: AlignmentType.CENTER,
-                children: [
-                  new TextRun({ text: "office@ak-law.co.il", font: "Tahoma", size: 15, color: "1B2A4A" }),
-                  new TextRun({ text: "  |  ", font: "Tahoma", size: 15, color: "777777" }),
-                  new TextRun({ text: "פקס", font: "Tahoma", size: 15, color: "555555", rightToLeft: true }),
-                  new TextRun({ text: ": 077-555-88-97  ", font: "Tahoma", size: 15, color: "555555" }),
-                  new TextRun({ text: "|", font: "Tahoma", size: 15, color: "777777" }),
-                  new TextRun({ text: "  ", font: "Tahoma", size: 15, color: "555555" }),
-                  new TextRun({ text: "טל", font: "Tahoma", size: 15, color: "555555", rightToLeft: true }),
-                  new TextRun({ text: ": 077-2088182", font: "Tahoma", size: 15, color: "555555" }),
-                ]
-              }),
-            ]
-          })
-        ]})]
-      })
-    ]
-  });
-}
-
-// === שורת נדון ===
-function subjectLine(text) {
-  return new Paragraph({
-    bidirectional: true, alignment: AlignmentType.CENTER,
-    spacing: { before: 200, after: 200 },
-    children: [
-      new TextRun({ text: "הנדון: ", bold: true, font: "David", size: 24, rightToLeft: true }),
-      new TextRun({ text, bold: true, font: "David", size: 24, rightToLeft: true, underline: {} })
-    ]
-  });
-}
-
-// שימוש:
+// אם אין אפשרות ל-unpack/repack, השתמש בקוד:
 const doc = new Document({
   sections: [{
     properties: {
@@ -741,44 +726,9 @@ const doc = new Document({
               margin: { top: 850, right: 1134, bottom: 1134, left: 1134, header: 283, footer: 283 } },
       bidi: true
     },
-    headers: { default: new Header({ children: firmLetterhead('assets/logo.png') }) },
-    footers: { default: firmFooter() },
+    // ... Header ו-Footer כמו בתבנית המקורית ...
     children: [
-      // תאריך
-      new Paragraph({
-        bidirectional: true, alignment: AlignmentType.START,
-        children: [new TextRun({ text: "ב\"ד, [תאריך]", font: "David", size: 24, rightToLeft: true })]
-      }),
-      // סימוכין
-      new Paragraph({
-        bidirectional: true, alignment: AlignmentType.START,
-        spacing: { after: 100 },
-        children: [new TextRun({ text: "סימוכין: [מספר תיק]", font: "David", size: 24, rightToLeft: true })]
-      }),
-      // נמען
-      new Paragraph({
-        bidirectional: true, alignment: AlignmentType.START,
-        spacing: { before: 200, after: 40 },
-        children: [new TextRun({ text: "לכבוד", font: "David", size: 24, rightToLeft: true })]
-      }),
-      new Paragraph({
-        bidirectional: true, alignment: AlignmentType.START,
-        children: [new TextRun({ text: "[שם הנמען]", bold: true, font: "David", size: 24, rightToLeft: true })]
-      }),
-      // סיווג
-      new Paragraph({
-        bidirectional: true, alignment: AlignmentType.START,
-        spacing: { before: 200 },
-        children: [new TextRun({
-          text: 'מכתב זה נשלח מבלי לפגוע בזכויות מרשי/תי',
-          bold: true, font: "David", size: 24, rightToLeft: true
-        })]
-      }),
-      // הנדון
-      subjectLine("התראה בטרם נקיטת הליכים משפטיים"),
-      // גוף המכתב...
-      // חתימה
-      ...lawyerSignature(),
+      // תאריך, סימוכין, נמען, סיווג, הנדון, גוף, חתימה
     ]
   }]
 });

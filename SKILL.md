@@ -215,8 +215,8 @@ numbering: {
 const CONTENT_WIDTH = 9638;  // A4 עם שוליים 2.0 ס"מ
 const border = { style: BorderStyle.SINGLE, size: 1, color: "999999" };
 const borders = { top: border, bottom: border, left: border, right: border };
-const noBorder = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
-const noBorders = { top: noBorder, bottom: noBorder, left: noBorder, right: noBorder };
+const visibleBorder = { style: BorderStyle.SINGLE, size: 1, color: "999999" };
+const visibleBorders = { top: visibleBorder, bottom: visibleBorder, left: visibleBorder, right: visibleBorder };
 
 const rtlCell = (text, width, opts = {}) => new TableCell({
   borders: opts.noBorders ? noBorders : borders,
@@ -244,7 +244,7 @@ new Table({
 
 ## תבנית 1: כתב בי דין (תביעה / הגנה / בקשה)
 
-זו התבנית העיקרית. כל ה-Header בנוי כ**טבלה אחת עם 3 עמודות וגבולות נסתרים (noBorders)** — כמקובל במסמכים משפטיים ישראליים.
+זו התבנית העיקרית. כל ה-Header בנוי כ**טבלה אחת עם 3 עמודות וגבולות נראים (visibleBorders — אפור 999999)** — כמקובל במסמכים משפטיים ישראליים.
 
 **מבנה:** עמודה ימנית (תוויות 2800), עמודה אמצעית (תוכן 5000), עמודה שמאלית (מספר תיק 1838).
 
@@ -267,8 +267,8 @@ const COL_CONTENT = 5000;  // אמצע — תוכן
 const COL_CASE = 1838;     // שמאל — מספר תיק
 // Total: 2800 + 5000 + 1838 = 9638 ✓
 
-const noBorder = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
-const noBorders = { top: noBorder, bottom: noBorder, left: noBorder, right: noBorder };
+const visibleBorder = { style: BorderStyle.SINGLE, size: 1, color: "999999" };
+const visibleBorders = { top: visibleBorder, bottom: visibleBorder, left: visibleBorder, right: visibleBorder };
 
 // === תוכן תא — צד מיוצג (כולל פרטי משרד) ===
 function partyContentWithRepresentation(clientName, clientId, clientAddress) {
@@ -386,7 +386,7 @@ function courtDocumentHeader({
       // === שורה 1: ת.חתימה (ימין) | ריק (אמצע) | ריק (שמאל) — רווח 0 ===
       new TableRow({ children: [
         new TableCell({
-          width: { size: COL_LABELS, type: WidthType.DXA }, borders: noBorders,
+          width: { size: COL_LABELS, type: WidthType.DXA }, borders: visibleBorders,
           children: [new Paragraph({
             bidirectional: true, alignment: AlignmentType.START,
             spacing: { before: 0, after: 0 },
@@ -394,18 +394,18 @@ function courtDocumentHeader({
           })]
         }),
         new TableCell({
-          width: { size: COL_CONTENT, type: WidthType.DXA }, borders: noBorders,
+          width: { size: COL_CONTENT, type: WidthType.DXA }, borders: visibleBorders,
           children: [new Paragraph({ bidirectional: true, spacing: { before: 0, after: 0 }, children: [] })]
         }),
         new TableCell({
-          width: { size: COL_CASE, type: WidthType.DXA }, borders: noBorders,
+          width: { size: COL_CASE, type: WidthType.DXA }, borders: visibleBorders,
           children: [new Paragraph({ bidirectional: true, spacing: { before: 0, after: 0 }, children: [] })]
         }),
       ]}),
       // === שורה 2: בית משפט (ימין) | ריק (אמצע) | מספר תיק (שמאל) — רווח 0 ===
       new TableRow({ children: [
         new TableCell({
-          width: { size: COL_LABELS, type: WidthType.DXA }, borders: noBorders,
+          width: { size: COL_LABELS, type: WidthType.DXA }, borders: visibleBorders,
           children: [
             new Paragraph({
               bidirectional: true, alignment: AlignmentType.START,
@@ -420,11 +420,11 @@ function courtDocumentHeader({
           ]
         }),
         new TableCell({
-          width: { size: COL_CONTENT, type: WidthType.DXA }, borders: noBorders,
+          width: { size: COL_CONTENT, type: WidthType.DXA }, borders: visibleBorders,
           children: [new Paragraph({ bidirectional: true, spacing: { before: 0, after: 0 }, children: [] })]
         }),
         new TableCell({
-          width: { size: COL_CASE, type: WidthType.DXA }, borders: noBorders,
+          width: { size: COL_CASE, type: WidthType.DXA }, borders: visibleBorders,
           children: [new Paragraph({
             bidirectional: true, alignment: AlignmentType.START,
             spacing: { before: 0, after: 0 },
@@ -435,7 +435,7 @@ function courtDocumentHeader({
       // === שורה מפרידה ריקה (colspan 3) ===
       new TableRow({ children: [
         new TableCell({
-          width: { size: COL_LABELS, type: WidthType.DXA }, borders: noBorders,
+          width: { size: COL_LABELS, type: WidthType.DXA }, borders: visibleBorders,
           columnSpan: 3,
           children: [new Paragraph({ bidirectional: true, spacing: { before: 0, after: 0 }, children: [] })]
         }),
@@ -443,7 +443,7 @@ function courtDocumentHeader({
       // === שורה 4: תווית תובעים (ימין) | פרטי תובעים (אמצע) | ריק (שמאל) ===
       new TableRow({ children: [
         new TableCell({
-          width: { size: COL_LABELS, type: WidthType.DXA }, borders: noBorders,
+          width: { size: COL_LABELS, type: WidthType.DXA }, borders: visibleBorders,
           verticalAlign: VerticalAlign.TOP,
           children: [new Paragraph({
             bidirectional: true, alignment: AlignmentType.START,
@@ -451,18 +451,18 @@ function courtDocumentHeader({
           })]
         }),
         new TableCell({
-          width: { size: COL_CONTENT, type: WidthType.DXA }, borders: noBorders,
+          width: { size: COL_CONTENT, type: WidthType.DXA }, borders: visibleBorders,
           children: plaintiffContent
         }),
         new TableCell({
-          width: { size: COL_CASE, type: WidthType.DXA }, borders: noBorders,
+          width: { size: COL_CASE, type: WidthType.DXA }, borders: visibleBorders,
           children: [new Paragraph({ bidirectional: true, children: [] })]
         }),
       ]}),
       // === שורה 5: "-נגד-" (colspan 3) ===
       new TableRow({ children: [
         new TableCell({
-          width: { size: COL_LABELS, type: WidthType.DXA }, borders: noBorders,
+          width: { size: COL_LABELS, type: WidthType.DXA }, borders: visibleBorders,
           columnSpan: 3,
           children: [new Paragraph({
             bidirectional: true, alignment: AlignmentType.CENTER,
@@ -474,7 +474,7 @@ function courtDocumentHeader({
       // === שורה 6: תווית נתבע (ימין) | פרטי נתבע (אמצע) | ריק (שמאל) ===
       new TableRow({ children: [
         new TableCell({
-          width: { size: COL_LABELS, type: WidthType.DXA }, borders: noBorders,
+          width: { size: COL_LABELS, type: WidthType.DXA }, borders: visibleBorders,
           verticalAlign: VerticalAlign.TOP,
           children: [new Paragraph({
             bidirectional: true, alignment: AlignmentType.START,
@@ -482,18 +482,18 @@ function courtDocumentHeader({
           })]
         }),
         new TableCell({
-          width: { size: COL_CONTENT, type: WidthType.DXA }, borders: noBorders,
+          width: { size: COL_CONTENT, type: WidthType.DXA }, borders: visibleBorders,
           children: defendantContent
         }),
         new TableCell({
-          width: { size: COL_CASE, type: WidthType.DXA }, borders: noBorders,
+          width: { size: COL_CASE, type: WidthType.DXA }, borders: visibleBorders,
           children: [new Paragraph({ bidirectional: true, children: [] })]
         }),
       ]}),
       // === שורה 7: כותרת המסמך (colspan 3) ===
       new TableRow({ children: [
         new TableCell({
-          width: { size: COL_LABELS, type: WidthType.DXA }, borders: noBorders,
+          width: { size: COL_LABELS, type: WidthType.DXA }, borders: visibleBorders,
           columnSpan: 3,
           children: [new Paragraph({
             bidirectional: true, alignment: AlignmentType.CENTER,
@@ -620,7 +620,7 @@ function firmLetterhead(logoPath) {
     rows: [new TableRow({ children: [
       // תא שמאלי — לוגו
       new TableCell({
-        width: { size: 5600, type: WidthType.DXA }, borders: noBorders,
+        width: { size: 5600, type: WidthType.DXA }, borders: visibleBorders,
         verticalAlign: "top",
         children: [new Paragraph({
           alignment: AlignmentType.START,
@@ -633,7 +633,7 @@ function firmLetterhead(logoPath) {
       }),
       // תא ימני — שמות עו"ד (RTL nested table)
       new TableCell({
-        width: { size: CONTENT_WIDTH - 5600, type: WidthType.DXA }, borders: noBorders,
+        width: { size: CONTENT_WIDTH - 5600, type: WidthType.DXA }, borders: visibleBorders,
         verticalAlign: "top",
         children: [
           new Paragraph({
@@ -680,7 +680,7 @@ function firmFooter() {
         width: { size: CONTENT_WIDTH, type: WidthType.DXA },
         rows: [new TableRow({ children: [
           new TableCell({
-            width: { size: CONTENT_WIDTH, type: WidthType.DXA }, borders: noBorders,
+            width: { size: CONTENT_WIDTH, type: WidthType.DXA }, borders: visibleBorders,
             shading: { fill: "F2F2F2", type: ShadingType.CLEAR },
             margins: { top: 100, bottom: 80, left: 200, right: 200 },
             children: [
@@ -816,13 +816,13 @@ function signatureTable() {
     columnWidths: [CONTENT_WIDTH / 2, CONTENT_WIDTH / 2],
     visuallyRightToLeft: true,
     rows: [new TableRow({ children: [
-      new TableCell({ borders: noBorders, children: [
+      new TableCell({ borders: visibleBorders, children: [
         new Paragraph({ bidirectional: true, alignment: AlignmentType.CENTER,
           children: [new TextRun({ text: "_________________", font: "David", size: 24, rightToLeft: true })] }),
         new Paragraph({ bidirectional: true, alignment: AlignmentType.CENTER,
           children: [new TextRun({ text: "צד א'", font: "David", size: 24, rightToLeft: true })] })
       ]}),
-      new TableCell({ borders: noBorders, children: [
+      new TableCell({ borders: visibleBorders, children: [
         new Paragraph({ bidirectional: true, alignment: AlignmentType.CENTER,
           children: [new TextRun({ text: "_________________", font: "David", size: 24, rightToLeft: true })] }),
         new Paragraph({ bidirectional: true, alignment: AlignmentType.CENTER,
